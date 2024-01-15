@@ -1,0 +1,21 @@
+<settings>
+    <servers>
+        <server>
+            <id>ossrh</id>
+            <username>${env.SONARTYPE_USERNAME}</username>
+            <password>${env.SONARTYPE_PASSWORD}</password>
+        </server>
+    </servers>
+
+    <profiles>
+        <profile>
+            <id>ossrh</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <gpg.passphrase>${env.PASSPHRASE}</gpg.passphrase>
+            </properties>
+        </profile>
+    </profiles>
+</settings>
