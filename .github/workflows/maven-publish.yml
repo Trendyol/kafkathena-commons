@@ -1,46 +1,36 @@
 # This workflow will build a package using Maven and then publish it to GitHub packages when a release is created
 # For more information see: https://github.com/actions/setup-java/blob/main/docs/advanced-usage.md#apache-maven-with-a-settings-path
-
-name: Release Kafkathena Commons
-
+name: release-workflow # You may choose a different name
+run-name: Release run ${{ github.run_number }} # Enumerates entries in the "workflow runs" view
 on:
- release:
-   types: [created]
-
+  workflow_dispatch: # Only run when manually started
 jobs:
-  release:
-    runs-on: ubuntu-latest
-    if: "!contains(github.event.head_commit.message, '[ci skip]')"
+  release: # Arbitrarily chosen
+    name: Release # Arbitrarily chosen
+    runs-on: ubuntu-22.04 # May also run on other kinds of distros
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up Java for publishing to Maven Central Repository
-        uses: actions/setup-java@v3
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Java
+        uses: actions/setup-java@v3 # Does also set up Maven and GPG
         with:
+          distribution: 'temurin' # As good as any other, see: https://github.com/actions/setup-java#supported-distributions
+          java-package: 'jdk'
           java-version: '17'
-          distribution: 'temurin'
-          server-id: ossrh
-          server-username: MAVEN_USERNAME
-          server-password: MAVEN_PASSWORD
-          gpg-private-key: ${{ secrets.SONARTYPE_GPG_PRIVATE_KEY }}
-          gpg-passphrase: ${{ secrets.SONARTYPE_GPG_PASSPHRASE }}
-          
-      - name: build artifact
-        run: mvn clean package
-      - name: Create release
-        uses: ncipollo/release-action@v1
-        with:
-          allowUpdates: true
-          artifacts: "${{ github.workspace }}/target/*.jar"
-          token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Publish to the Maven Central Repository
+          check-latest: true
+          server-id: 'ossrh' # must match the serverId configured for the nexus-staging-maven-plugin
+          server-username: OSSRH_USERNAME # Env var that holds your OSSRH user name
+          server-password: OSSRH_PASSWORD # Env var that holds your OSSRH user pw
+          gpg-private-key: ${{ secrets.SONARTYPE_GPG_PRIVATE_KEY }} # Substituted with the value stored in the referenced secret
+          gpg-passphrase: SIGN_KEY_PASS # Env var that holds the key's passphrase
+          cache: 'maven'
+      - name: Build & Deploy
         run: |
-          mvn \
-            --no-transfer-progress \
-            --batch-mode \
-            deploy
+          # -U force updates just to make sure we are using latest dependencies
+          # -B Batch mode (do not ask for user input), just in case
+          # -P activate profile
+          mvn -U -B clean deploy -P release
         env:
-          MAVEN_USERNAME: ${{ secrets.SONARTYPE_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.SONARTYPE_PASSWORD }}
-          MAVEN_GPG_PASSPHRASE: ${{ secrets.SONARTYPE_GPG_PASSPHRASE }}
-
-
+          SIGN_KEY_PASS: ${{ secrets.SONARTYPE_GPG_PASSPHRASE }}
+          OSSRH_USERNAME: ${{ secrets.SONARTYPE_USERNAME }}
+          OSSRH_PASSWORD: ${{ secrets.SONARTYPE_PASSWORD }}
