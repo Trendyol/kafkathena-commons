@@ -19,10 +19,10 @@ jobs:
           java-version: '17'
           check-latest: true
           server-id: 'ossrh' # must match the serverId configured for the nexus-staging-maven-plugin
-          server-username: OSSRH_USERNAME # Env var that holds your OSSRH user name
-          server-password: OSSRH_PASSWORD # Env var that holds your OSSRH user pw
+          server-username: ${{ secrets.SONARTYPE_USERNAME }} # Env var that holds your OSSRH user name
+          server-password: ${{ secrets.SONARTYPE_PASSWORD }} # Env var that holds your OSSRH user pw
           gpg-private-key: ${{ secrets.SONARTYPE_GPG_PRIVATE_KEY }} # Substituted with the value stored in the referenced secret
-          gpg-passphrase: SIGN_KEY_PASS # Env var that holds the key's passphrase
+          gpg-passphrase: ${{ secrets.SONARTYPE_GPG_PASSPHRASE }} # Env var that holds the key's passphrase
           cache: 'maven'
       - name: Build & Deploy
         run: |
