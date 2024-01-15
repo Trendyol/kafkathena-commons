@@ -9,6 +9,13 @@ jobs:
     name: Release # Arbitrarily chosen
     runs-on: ubuntu-22.04 # May also run on other kinds of distros
     steps:
+      - id: install-secret-key
+        name: Install gpg secret key
+        run: |
+          # Install gpg secret key
+          cat <(echo -e "${{ secrets.SONARTYPE_GPG_PRIVATE_KEY }}") | gpg --batch --import
+          # Verify gpg secret key
+          gpg --list-secret-keys --keyid-format LONG
       - name: Checkout
         uses: actions/checkout@v3
       - name: Setup Java
