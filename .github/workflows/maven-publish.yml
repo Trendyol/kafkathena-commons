@@ -40,3 +40,4 @@ jobs:
           server-password: ${{ secrets.SONARTYPE_PASSWORD }} # Env var that holds your OSSRH user pw
           gpg-private-key: ${{ secrets.SONARTYPE_GPG_PRIVATE_KEY }} # Substituted with the value stored in the referenced secret
           gpg-passphrase: ${{ secrets.SONARTYPE_GPG_PASSPHRASE }} # Env var that holds the key's passphrase
+          gpg.passphrase: ${{ secrets.SONARTYPE_GPG_PASSPHRASE }}
