@@ -1,4 +1,4 @@
-package com.trendyol.mpc.kafkathena.commons.exception;
+package com.trendyol.mpc.kafkathena.commons.model.exception;
 
 import lombok.Builder;
 

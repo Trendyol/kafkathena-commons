@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(MockitoExtension.class)
 class KSRecordFilterStrategyTest {
     @Test
-    public void it_should_filter_incoming_filter_value_equals_to_defined_filter_value() {
+    void it_should_filter_incoming_filter_value_equals_to_defined_filter_value() {
         //given
         KSRecordFilterStrategy ksRecordFilterStrategy = new KSRecordFilterStrategy("blah");
         ConsumerRecord record = new ConsumerRecord("topic", -1, -1, null, null);
@@ -27,7 +27,7 @@ class KSRecordFilterStrategyTest {
     }
 
     @Test
-    public void it_should_not_filter_incoming_filter_value_not_equals_to_defined_filter_value() {
+    void it_should_not_filter_incoming_filter_value_not_equals_to_defined_filter_value() {
         //given
         KSRecordFilterStrategy ksRecordFilterStrategy = new KSRecordFilterStrategy("blah1");
         ConsumerRecord record = new ConsumerRecord("topic", -1, -1, null, null);
@@ -40,7 +40,7 @@ class KSRecordFilterStrategyTest {
     }
 
     @Test
-    public void it_should_not_filter_incoming_filter_value_is_empty() {
+    void it_should_not_filter_incoming_filter_value_is_empty() {
         //given
         KSRecordFilterStrategy ksRecordFilterStrategy = new KSRecordFilterStrategy("blah1");
         ConsumerRecord record = new ConsumerRecord("topic", -1, -1, null, null);
@@ -48,6 +48,5 @@ class KSRecordFilterStrategyTest {
         boolean result = ksRecordFilterStrategy.filter(record);
         //then
         assertThat(result).isTrue();
-
     }
 }

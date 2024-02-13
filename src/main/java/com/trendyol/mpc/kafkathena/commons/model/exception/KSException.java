@@ -1,4 +1,4 @@
-package com.trendyol.mpc.kafkathena.commons.exception;
+package com.trendyol.mpc.kafkathena.commons.model.exception;
 
 import lombok.Builder;
 
@@ -7,8 +7,14 @@ public class KSException extends RuntimeException {
     public KSException(String message) {
         super(message);
     }
+
     @Builder
     public KSException(String message, Throwable cause) {
         super(message, cause);
+    }
+
+    @Override
+    public String getMessage() {
+        return "Kafkathena: ".concat(super.getMessage());
     }
 }

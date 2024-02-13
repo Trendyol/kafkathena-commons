@@ -1,7 +1,8 @@
 package com.trendyol.mpc.kafkathena.commons.model;
 
 import com.trendyol.mpc.kafkathena.commons.model.constant.KSConstants;
-import com.trendyol.mpc.kafkathena.commons.util.KSYamlPropertySourceFactory;
+import com.trendyol.mpc.kafkathena.commons.model.sharedfactory.KSSharedFactoryProperties;
+import com.trendyol.mpc.kafkathena.commons.util.extensions.KSYamlPropertySourceFactory;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
@@ -17,8 +18,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 @ToString
 @PropertySource(value = KSConstants.KS_DEFAULTS_YML_CLASSPATH, factory = KSYamlPropertySourceFactory.class)
-public class KSConsumerProducerProp {
-    private KSConsumerFactoryProp sharedFactoryProps;
+public class KSConfigurationProperties {
+    private KSSharedFactoryProperties sharedFactoryProps;
     private Map<String, KSConsumer> consumers;
     private Map<String, KSProducer> producers;
     private Map<String, String> integrationTopics;

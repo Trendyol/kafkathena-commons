@@ -1,6 +1,6 @@
 package com.trendyol.mpc.kafkathena.commons.util.extensions;
 
-import com.trendyol.mpc.kafkathena.commons.model.KSConsumerFactoryProp;
+import com.trendyol.mpc.kafkathena.commons.model.sharedfactory.KSSharedConsumerFactoryProperties;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Spy;
@@ -18,7 +18,7 @@ class KSMapSupportTest {
     private KSMapSupport ksMapSupport;
 
     @Test
-    public void it_should_MergeKafkaProps() {
+    void it_should_MergeKafkaProps() {
         //given
         Map<String, Object> props = new HashMap<>();
         props.put("value.deserializer", "org.springframework.kafka.support.serializer.ErrorHandlingDeserializer");
@@ -42,73 +42,77 @@ class KSMapSupportTest {
         //when
         Map<String, Object> mergedProps = ksMapSupport.mergeKafkaProps(defaultProps, props);
         //then
-        assertThat(mergedProps.get("value.deserializer")).isEqualTo("demo.value.deserializer");
-        assertThat(mergedProps.get("spring.deserializer.value.delegate.class")).isEqualTo("demo.deserializer.delegate");
-        assertThat(mergedProps.get("fetch.max.bytes")).isEqualTo(52428800);
-        assertThat(mergedProps.get("fetch.max.wait.ms")).isEqualTo(500);
-        assertThat(mergedProps.get("key.deserializer")).isEqualTo("org.springframework.kafka.support.serializer.ErrorHandlingDeserializer");
-        assertThat(mergedProps.get("spring.deserializer.key.delegate.class")).isEqualTo("org.apache.kafka.common.serialization.StringDeserializer");
-        assertThat(mergedProps.get("max.poll.records")).isEqualTo(100);
-        assertThat(mergedProps.get("max.poll.interval.ms")).isEqualTo(300000);
-        assertThat(mergedProps.get("session.timeout.ms")).isEqualTo(300000);
-        assertThat(mergedProps.get("heartbeat.interval.ms")).isEqualTo(3000);
-        assertThat(mergedProps.get("enable.auto.commit")).isEqualTo(true);
-        assertThat(mergedProps.get("auto.offset.reset")).isEqualTo("earliest");
+
+        Map<String, Object> checkMap = new HashMap<>();
+        checkMap.put("spring.deserializer.value.delegate.class", "demo.deserializer.delegate");
+        checkMap.put("fetch.max.bytes", 52428800);
+        checkMap.put("fetch.max.wait.ms", 500);
+        checkMap.put("key.deserializer", "org.springframework.kafka.support.serializer.ErrorHandlingDeserializer");
+        checkMap.put("spring.deserializer.key.delegate.class", "org.apache.kafka.common.serialization.StringDeserializer");
+        checkMap.put("max.poll.records", 100);
+        checkMap.put("max.poll.interval.ms", 300000);
+        checkMap.put("session.timeout.ms", 300000);
+        checkMap.put("heartbeat.interval.ms", 3000);
+        checkMap.put("enable.auto.commit", true);
+        checkMap.put("auto.offset.reset", "earliest");
+
+        assertThat(mergedProps).containsAllEntriesOf(checkMap);
+
 
     }
 
     @Test
-    public void it_should_MergeFactoryProps() {
+    void it_should_MergeFactoryProps() {
         //given
-        KSConsumerFactoryProp defaultFactoryProps = new KSConsumerFactoryProp();
+        KSSharedConsumerFactoryProperties defaultFactoryProps = new KSSharedConsumerFactoryProperties();
         defaultFactoryProps.setAckMode(ContainerProperties.AckMode.RECORD);
         defaultFactoryProps.setConcurrency(1);
         defaultFactoryProps.setAutoStartup(true);
-        defaultFactoryProps.setInterceptorClassPath("interceptor");
+        defaultFactoryProps.setInterceptor("interceptor");
         defaultFactoryProps.setSyncCommit(true);
         defaultFactoryProps.setMissingTopicAlertEnable(false);
         defaultFactoryProps.setSyncCommitTimeoutSecond(40000);
 
-        KSConsumerFactoryProp factoryProps = new KSConsumerFactoryProp();
+        KSSharedConsumerFactoryProperties factoryProps = new KSSharedConsumerFactoryProperties();
         factoryProps.setAckMode(ContainerProperties.AckMode.BATCH);
         factoryProps.setConcurrency(5);
         factoryProps.setAutoStartup(false);
-        factoryProps.setInterceptorClassPath("interceptor");
+        factoryProps.setInterceptor("interceptor");
         ;
 
         //when
-        KSConsumerFactoryProp mergedFactoryProps = ksMapSupport.mergeFactoryProps(defaultFactoryProps, factoryProps);
+        KSSharedConsumerFactoryProperties mergedFactoryProps = ksMapSupport.mergeConsumerFactoryProps(defaultFactoryProps, factoryProps);
         //then
         assertThat(mergedFactoryProps.getAckMode()).isEqualTo(ContainerProperties.AckMode.BATCH);
         assertThat(mergedFactoryProps.getConcurrency()).isEqualTo(5);
-        assertThat(mergedFactoryProps.getAutoStartup()).isEqualTo(false);
-        assertThat(mergedFactoryProps.getInterceptorClassPath()).isEqualTo("interceptor");
-        assertThat(defaultFactoryProps.getSyncCommit()).isEqualTo(true);
-        assertThat(defaultFactoryProps.getMissingTopicAlertEnable()).isEqualTo(false);
+        assertThat(mergedFactoryProps.getAutoStartup()).isFalse();
+        assertThat(mergedFactoryProps.getInterceptor()).isEqualTo("interceptor");
+        assertThat(defaultFactoryProps.getSyncCommit()).isTrue();
+        assertThat(defaultFactoryProps.getMissingTopicAlertEnable()).isFalse();
         assertThat(defaultFactoryProps.getSyncCommitTimeoutSecond()).isEqualTo(40000);
     }
 
     @Test
-    public void it_should_return_defaultProps_when_target_props_not_given() {
+    void it_should_return_defaultProps_when_target_props_not_given() {
         //given
-        KSConsumerFactoryProp defaultFactoryProps = new KSConsumerFactoryProp();
+        KSSharedConsumerFactoryProperties defaultFactoryProps = new KSSharedConsumerFactoryProperties();
         defaultFactoryProps.setAckMode(ContainerProperties.AckMode.RECORD);
         defaultFactoryProps.setConcurrency(1);
         defaultFactoryProps.setAutoStartup(true);
-        defaultFactoryProps.setInterceptorClassPath("interceptor");
+        defaultFactoryProps.setInterceptor("interceptor");
         defaultFactoryProps.setSyncCommit(true);
         defaultFactoryProps.setMissingTopicAlertEnable(false);
         defaultFactoryProps.setSyncCommitTimeoutSecond(40000);
 
         //when
-        KSConsumerFactoryProp mergedFactoryProps = ksMapSupport.mergeFactoryProps(defaultFactoryProps, null);
+        KSSharedConsumerFactoryProperties mergedFactoryProps = ksMapSupport.mergeConsumerFactoryProps(defaultFactoryProps, null);
         //then
         assertThat(mergedFactoryProps.getAckMode()).isEqualTo(ContainerProperties.AckMode.RECORD);
         assertThat(mergedFactoryProps.getConcurrency()).isEqualTo(1);
-        assertThat(mergedFactoryProps.getAutoStartup()).isEqualTo(true);
-        assertThat(mergedFactoryProps.getInterceptorClassPath()).isEqualTo("interceptor");
-        assertThat(defaultFactoryProps.getSyncCommit()).isEqualTo(true);
-        assertThat(defaultFactoryProps.getMissingTopicAlertEnable()).isEqualTo(false);
+        assertThat(mergedFactoryProps.getAutoStartup()).isTrue();
+        assertThat(mergedFactoryProps.getInterceptor()).isEqualTo("interceptor");
+        assertThat(defaultFactoryProps.getSyncCommit()).isTrue();
+        assertThat(defaultFactoryProps.getMissingTopicAlertEnable()).isFalse();
         assertThat(defaultFactoryProps.getSyncCommitTimeoutSecond()).isEqualTo(40000);
     }
 }

@@ -10,7 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
-public class KSJsonSupportTest implements KSJsonSupport {
+class KSJsonSupportTest implements KSJsonSupport {
     @Spy
     KSJsonSupport ksJsonSupport;
 
@@ -19,7 +19,7 @@ public class KSJsonSupportTest implements KSJsonSupport {
     }
 
     @Test
-    public void it_should_AsJson() {
+    void it_should_AsJson() {
         //given
         DemoModel demoModel = new DemoModel();
         demoModel.setAge(10);

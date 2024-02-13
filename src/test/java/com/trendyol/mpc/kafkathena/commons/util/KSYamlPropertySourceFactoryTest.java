@@ -1,5 +1,6 @@
 package com.trendyol.mpc.kafkathena.commons.util;
 
+import com.trendyol.mpc.kafkathena.commons.util.extensions.KSYamlPropertySourceFactory;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -12,9 +13,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 class KSYamlPropertySourceFactoryTest {
-    private KSYamlPropertySourceFactory ksYamlPropertySourceFactory = new KSYamlPropertySourceFactory();
+    KSYamlPropertySourceFactory ksYamlPropertySourceFactory = new KSYamlPropertySourceFactory();
+
     @Test
-    public void it_should_CreatePropertySource() {
+    void it_should_CreatePropertySource() {
         //given
         Resource res = new ClassPathResource("kafkathena-defaults.yml");
         EncodedResource encRes = new EncodedResource(res, "UTF-8");

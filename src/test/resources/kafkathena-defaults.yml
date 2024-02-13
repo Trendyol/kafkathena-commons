@@ -4,7 +4,7 @@ kafkathena:
     "[spring.deserializer.value.delegate.class]": org.springframework.kafka.support.serializer.JsonDeserializer
     "[key.deserializer]": org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
     "[spring.deserializer.key.delegate.class]": org.apache.kafka.common.serialization.StringDeserializer
-#    "[spring.json.trusted.packages]": "*"
+    #    "[spring.json.trusted.packages]": "*"
     "[max.poll.records]": ${EVENT_CONSUMER_DEFAULTS_MAX_POLL_RECORDS:100}
     "[max.poll.interval.ms]": ${EVENT_CONSUMER_DEFAULTS_MAX_POLL_INTERVAL_MS:300000}
     "[session.timeout.ms]": ${EVENT_CONSUMER_DEFAULTS_SESSION_TIMEOUT_MS:300000}
