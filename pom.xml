@@ -217,7 +217,8 @@
                             <serverId>ossrh</serverId>
                             <!-- For pre 2021 legacy projects you may use https://oss.sonatype.org-->
                             <!-- See https://central.sonatype.org/publish/release/#login-into-ossrh for details -->
-                            <nexusUrl>https://s01.oss.sonatype.org</nexusUrl>
+<!--                            <nexusUrl>https://s01.oss.sonatype.org</nexusUrl>-->
+                            <nexusUrl>https://oss.sonatype.org</nexusUrl>
                             <autoReleaseAfterClose>true</autoReleaseAfterClose>
                         </configuration>
                     </plugin>
