@@ -28,8 +28,8 @@ jobs:
           server-id: ossrh
           server-username: ${{ secrets.SONARTYPE_USERNAME }}
           server-password: ${{ secrets.SONARTYPE_PASSWORD }}
-          GPG_PRIVATE_KEY: ${{ secrets.SONARTYPE_GPG_PRIVATE_KEY }}
-          GPG_PASSPHRASE: ${{ secrets.SONARTYPE_GPG_PASSPHRASE }}
+          gpg-private-key: ${{ secrets.SONARTYPE_GPG_PRIVATE_KEY }}
+          gpg-passphrase: ${{ secrets.SONARTYPE_GPG_PASSPHRASE }}
 
       - name: Set projects Maven version to GitHub Action GUI set version
         run: mvn versions:set "-DnewVersion=${{ github.event.inputs.releaseversion }}"
