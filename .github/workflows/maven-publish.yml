@@ -30,7 +30,6 @@ jobs:
           gpg-passphrase: SIGN_KEY_PASS # Env var that holds the key's passphrase
           GPG_PASSPHRASE: SIGN_KEY_PASSs
           cache: 'maven'
-          overwrite-settings: false
       - name: Build & Deploy
         run: |
           # -U force updates just to make sure we are using latest dependencies
