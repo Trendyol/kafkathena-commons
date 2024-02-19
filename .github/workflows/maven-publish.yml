@@ -28,7 +28,6 @@ jobs:
           server-password: OSSRH_PASSWORD # Env var that holds your OSSRH user pw
           gpg-private-key: ${{ secrets.SONARTYPE_GPG_PRIVATE_KEY }} # Substituted with the value stored in the referenced secret
           gpg-passphrase: SIGN_KEY_PASS # Env var that holds the key's passphrase
-          GPG_PASSPHRASE: SIGN_KEY_PASSs
           cache: 'maven'
       - name: Build & Deploy
         run: |
