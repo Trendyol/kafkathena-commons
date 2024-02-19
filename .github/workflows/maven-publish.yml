@@ -16,7 +16,16 @@ jobs:
     steps:
       - run: echo "Will start a Maven Central upload with version ${{ github.event.inputs.releaseversion }}"
 
-      - uses: actions/checkout@v2
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Configure GPG Key
+        run: |
+          mkdir -p ~/.gnupg/
+          printf "$MAVEN_GPG_PRIVATE_KEY" | base64 --decode > ~/.gnupg/private.key
+          gpg --batch --import ~/.gnupg/private.key
+        env:
+          MAVEN_GPG_PRIVATE_KEY: ${{ secrets.SONARTYPE_GPG_PRIVATE_KEY }}
 
       - name: Set up Maven Central Repository
         uses: actions/setup-java@v3
