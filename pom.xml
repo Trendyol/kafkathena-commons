@@ -47,6 +47,11 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>17</java.version>
         <confluent.version>7.5.1</confluent.version>
+
+        <maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
+        <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
+        <maven-javadoc-plugin.version>3.4.1</maven-javadoc-plugin.version>
+        <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
     </properties>
 
     <dependencies>
@@ -176,44 +181,61 @@
     </dependencies>
 
     <profiles>
-        <!-- Deployment profile (required so these plugins are only used when deploying) -->
         <profile>
-            <id>deploy</id>
+            <id>central-deploy</id>
             <build>
                 <plugins>
-                    <!-- Source plugin -->
+                    <plugin>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>${maven-gpg-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <configuration>
+                                    <!-- This is necessary for gpg to not try to use the pinentry programs -->
+                                    <gpgArguments>
+                                        <arg>--pinentry-mode</arg>
+                                        <arg>loopback</arg>
+                                    </gpgArguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>versions-maven-plugin</artifactId>
+                        <version>${versions-maven-plugin.version}</version>
+                        <configuration>
+                            <generateBackupPoms>false</generateBackupPoms>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-deploy-plugin</artifactId>
+                        <configuration>
+                            <skip>true</skip>
+                        </configuration>
+                    </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
-                        <version>3.3.0</version>
+                        <version>${maven-source-plugin.version}</version>
                         <executions>
                             <execution>
                                 <id>attach-sources</id>
                                 <goals>
-                                    <goal>jar-no-fork</goal>
+                                    <goal>jar</goal>
                                 </goals>
                             </execution>
                         </executions>
                     </plugin>
-
-                    <!-- Javadoc plugin -->
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.3.0</version>
-                        <configuration>
-                            <links>
-                                <link>https://docs.oracle.com/en/java/javase/17/docs/api/</link>
-                            </links>
-                            <excludes>
-                                **/target/generated-sources/**
-                            </excludes>
-                            <excludes>
-                                **/target/generated-sources/**
-                            </excludes>
-                            <excludePackageNames>*.generated.*</excludePackageNames>
-                            <doclint>none</doclint>
-                        </configuration>
+                        <version>${maven-javadoc-plugin.version}</version>
                         <executions>
                             <execution>
                                 <id>attach-javadocs</id>
@@ -223,28 +245,23 @@
                             </execution>
                         </executions>
                     </plugin>
-
-                    <!-- GPG plugin -->
                     <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.5</version>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <version>${nexus-staging-maven-plugin.version}</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>oss.sonatype.org</serverId>
+                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                        </configuration>
                         <executions>
                             <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
+                                <id>deploy-to-sonatype</id>
+                                <phase>deploy</phase>
                                 <goals>
-                                    <goal>sign</goal>
+                                    <goal>deploy</goal>
+                                    <goal>release</goal>
                                 </goals>
-                                <configuration>
-                                    <gpgArguments>
-                                        <arg>--pinentry-mode</arg>
-                                        <arg>loopback</arg>
-                                    </gpgArguments>
-                                    <passphrase>${secrets.gpg_passphrase}</passphrase>
-                                    <keyname>${secrets.gpg_private_key}</keyname>
-                                    <passphraseServerId>ossrh</passphraseServerId>
-                                </configuration>
                             </execution>
                         </executions>
                     </plugin>

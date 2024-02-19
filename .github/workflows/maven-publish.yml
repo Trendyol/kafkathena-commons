@@ -3,28 +3,73 @@
 name: release-workflow # You may choose a different name
 run-name: Release run ${{ github.run_number }} # Enumerates entries in the "workflow runs" view
 on:
-  release:
-    types: [created] # Only run when manually started
+  workflow_dispatch:
+    inputs:
+      releaseversion:
+        description: 'Release version'
+        required: true
+        default: '1.0'
 jobs:
   release: # Arbitrarily chosen
     name: Release # Arbitrarily chosen
     runs-on: ubuntu-22.04
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Setup Java
-        uses: actions/setup-java@v3 # Does also set up Maven and GPG
+      - run: echo "Will start a Maven Central upload with version ${{ github.event.inputs.releaseversion }}"
+
+      - uses: actions/checkout@v2
+
+      - name: Set up Maven Central Repository
+        uses: actions/setup-java@v3
         with:
           distribution: 'temurin' # As good as any other, see: https://github.com/actions/setup-java#supported-distributions
           java-package: 'jdk'
           java-version: '17'
           cache: 'maven'
-      - name: Release Maven package
-        uses: WasiqB/maven-publish-action@v1
-        with:
-          nexus_username: ${{ secrets.nexus_username }}
-          nexus_password: ${{ secrets.nexus_password }}
-          gpg_private_key: ${{ secrets.gpg_private_key }}
-          gpg_passphrase: ${{ secrets.gpg_passphrase }}
+          server-id: oss.sonatype.org
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
+          gpg-private-key: ${{ secrets.gpg_private_key }}
+          gpg-passphrase: MAVEN_GPG_PASSPHRASE
 
+      - name: Set projects Maven version to GitHub Action GUI set version
+        run: mvn versions:set "-DnewVersion=${{ github.event.inputs.releaseversion }}"
+
+      - name: Publish package
+        run: mvn --batch-mode clean deploy -P central-deploy -DskipTests=true
+        env:
+          MAVEN_USERNAME: ${{ secrets.nexus_username }}
+          MAVEN_PASSWORD: ${{ secrets.nexus_pasword }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.gpg_passphrase }}
+
+      - name: Generate changelog
+        id: changelog
+        uses: metcalfc/changelog-generator@v4.0.1
+        with:
+          myToken: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.event.inputs.releaseversion }}
+          release_name: ${{ github.event.inputs.releaseversion }}
+          body: |
+            Grab the new version from Maven central https://repo1.maven.org/maven2/com/trendyol/mpc/kafkathena-commons/${{ github.event.inputs.releaseversion }}/ by using it in your deps:
+            
+            ```
+            <dependencies>
+              <dependency>
+                  <groupId>com.trendyol.mpc</groupId>
+                  <artifactId>kafkathena-commons</artifactId>
+                  <version>${{ github.event.inputs.releaseversion }}</version>
+              </dependency>
+            </dependencies>
+            ```
+            
+            ### Things that changed in this release
+            ${{ steps.changelog.outputs.changelog }}
+          draft: false
+          prerelease: false
 
