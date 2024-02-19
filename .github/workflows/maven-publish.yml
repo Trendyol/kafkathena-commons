@@ -26,8 +26,8 @@ jobs:
           server-id: 'ossrh' # must match the serverId configured for the nexus-staging-maven-plugin
           server-username: OSSRH_USERNAME # Env var that holds your OSSRH user name
           server-password: OSSRH_PASSWORD # Env var that holds your OSSRH user pw
-#          gpg-private-key: ${{ secrets.SONARTYPE_GPG_PRIVATE_KEY }} # Substituted with the value stored in the referenced secret
-#          gpg-passphrase: SIGN_KEY_PASS # Env var that holds the key's passphrase
+          gpg-private-key: ${{ secrets.SONARTYPE_GPG_PRIVATE_KEY }} # Substituted with the value stored in the referenced secret
+          gpg-passphrase: SIGN_KEY_PASS # Env var that holds the key's passphrase
           cache: 'maven'
 
       - name: Set projects Maven version to GitHub Action GUI set version
@@ -40,7 +40,8 @@ jobs:
           # -P activate profile
           mvn -U -B clean deploy -P release
         env:
-#          SIGN_KEY_PASS: ${{ secrets.SONARTYPE_GPG_PASSPHRASE }}
+          GPG_KEY: ${{ secrets.SONARTYPE_GPG_PRIVATE_KEY }}
+          SIGN_KEY_PASS: ${{ secrets.SONARTYPE_GPG_PASSPHRASE }}
           OSSRH_USERNAME: ${{ secrets.SONARTYPE_USERNAME }}
           OSSRH_PASSWORD: ${{ secrets.SONARTYPE_PASSWORD }}
 

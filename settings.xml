@@ -1,0 +1,20 @@
+<settings>
+    <servers>
+        <server>
+            <id>ossrh</id>
+            <username>${env.OSSRH_USERNAME}</username>
+            <password>${env.OSSRH_PASSWORD}</password>
+        </server>
+    </servers>
+    <profiles>
+        <profile>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <gpg.keyname>${env.GPG_KEY}</gpg.keyname>
+                <gpg.passphrase>${env.SIGN_KEY_PASS}</gpg.passphrase>
+            </properties>
+        </profile>
+    </profiles>
+</settings>

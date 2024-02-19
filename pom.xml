@@ -52,6 +52,8 @@
         <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
         <maven-javadoc-plugin.version>3.4.1</maven-javadoc-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
     </properties>
 
     <dependencies>
@@ -182,21 +184,56 @@
 
     <profiles>
         <profile>
-        <id>release</id>
-        <properties>
-            <version.maven-release-plugin>3.0.0-M7</version.maven-release-plugin>
-            <version.maven-gpg-plugin>3.0.1</version.maven-gpg-plugin>
-            <version.nexus-staging-maven-plugin>1.6.13</version.nexus-staging-maven-plugin>
-        </properties>
-        <build>
-            <pluginManagement>
+            <id>release</id>
+            <activation>
+                <property>
+                    <name>performRelease</name>
+                    <value>true</value>
+                </property>
+            </activation>
+            <properties>
+                <version.maven-release-plugin>3.0.0-M7</version.maven-release-plugin>
+                <version.maven-gpg-plugin>3.0.1</version.maven-gpg-plugin>
+                <version.nexus-staging-maven-plugin>1.6.13</version.nexus-staging-maven-plugin>
+            </properties>
+            <build>
                 <plugins>
                     <plugin>
-                        <artifactId>maven-release-plugin</artifactId>
-                        <version>${version.maven-release-plugin}</version>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <version>3.5.1</version>
                         <configuration>
-                            <tagNameFormat>@{project.version}</tagNameFormat>
+                            <source>${java.version}</source>
                         </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>2.2.1</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>3.6.2</version>
+                        <configuration>
+                            <source>${java.version}</source>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                     </plugin>
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
@@ -206,35 +243,41 @@
                             <generateBackupPoms>false</generateBackupPoms>
                         </configuration>
                     </plugin>
-                    <!-- The key's name & passphrase are configured via GitHub's setup-java action. -->
-<!--                    s-->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.5</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
                     <plugin>
                         <groupId>org.sonatype.plugins</groupId>
                         <artifactId>nexus-staging-maven-plugin</artifactId>
-                        <version>${version.nexus-staging-maven-plugin}</version>
+                        <version>1.6.7</version>
                         <extensions>true</extensions>
                         <configuration>
                             <serverId>ossrh</serverId>
-                            <!-- For pre 2021 legacy projects you may use https://oss.sonatype.org-->
-                            <!-- See https://central.sonatype.org/publish/release/#login-into-ossrh for details -->
-<!--                            <nexusUrl>https://s01.oss.sonatype.org</nexusUrl>-->
-                            <nexusUrl>https://oss.sonatype.org</nexusUrl>
+                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                            <!-- Set this to true and the release will automatically proceed and sync to Central Repository will follow  -->
                             <autoReleaseAfterClose>true</autoReleaseAfterClose>
                         </configuration>
                     </plugin>
                 </plugins>
-            </pluginManagement>
-            <plugins>
-                <plugin>
-                    <artifactId>maven-gpg-plugin</artifactId>
-                </plugin>
-                <plugin>
-                    <groupId>org.sonatype.plugins</groupId>
-                    <artifactId>nexus-staging-maven-plugin</artifactId>
-                </plugin>
-            </plugins>
-        </build>
-    </profile>
+            </build>
+            <distributionManagement>
+                <snapshotRepository>
+                    <id>ossrh</id>
+                    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+                </snapshotRepository>
+            </distributionManagement>
+        </profile>
     </profiles>
 
 
