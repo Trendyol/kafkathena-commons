@@ -182,28 +182,21 @@
 
     <profiles>
         <profile>
-            <id>central-deploy</id>
-            <build>
+        <id>release</id>
+        <properties>
+            <version.maven-release-plugin>3.0.0-M7</version.maven-release-plugin>
+            <version.maven-gpg-plugin>3.0.1</version.maven-gpg-plugin>
+            <version.nexus-staging-maven-plugin>1.6.13</version.nexus-staging-maven-plugin>
+        </properties>
+        <build>
+            <pluginManagement>
                 <plugins>
                     <plugin>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <version>${maven-gpg-plugin.version}</version>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                                <configuration>
-                                    <!-- This is necessary for gpg to not try to use the pinentry programs -->
-                                    <gpgArguments>
-                                        <arg>--pinentry-mode</arg>
-                                        <arg>loopback</arg>
-                                    </gpgArguments>
-                                </configuration>
-                            </execution>
-                        </executions>
+                        <artifactId>maven-release-plugin</artifactId>
+                        <version>${version.maven-release-plugin}</version>
+                        <configuration>
+                            <tagNameFormat>@{project.version}</tagNameFormat>
+                        </configuration>
                     </plugin>
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
@@ -213,89 +206,54 @@
                             <generateBackupPoms>false</generateBackupPoms>
                         </configuration>
                     </plugin>
+                    <!-- The key's name & passphrase are configured via GitHub's setup-java action. -->
                     <plugin>
-                        <artifactId>maven-deploy-plugin</artifactId>
-                        <configuration>
-                            <skip>true</skip>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <version>${maven-source-plugin.version}</version>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>${version.maven-gpg-plugin}</version>
                         <executions>
                             <execution>
-                                <id>attach-sources</id>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
                                 <goals>
-                                    <goal>jar</goal>
+                                    <goal>sign</goal>
                                 </goals>
+                                <configuration>
+                                    <!-- This is required to make sure the plugin does not stop asking for -->
+                                    <!-- user input on the passphrase -->
+                                    <gpgArguments>
+                                        <arg>--pinentry-mode</arg>
+                                        <arg>loopback</arg>
+                                    </gpgArguments>
+                                </configuration>
                             </execution>
                         </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>${maven-javadoc-plugin.version}</version>
-                        <executions>
-                            <execution>
-                                <id>attach-javadocs</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <!--
-                                Workaround for Javadoc generation issue with Java 11+
-                                TODO: Remove config once https://bugs.openjdk.java.net/browse/JDK-8212233 is fixed
-                            -->
-                            <source>8</source>
-                        </configuration>
                     </plugin>
                     <plugin>
                         <groupId>org.sonatype.plugins</groupId>
                         <artifactId>nexus-staging-maven-plugin</artifactId>
-                        <version>${nexus-staging-maven-plugin.version}</version>
+                        <version>${version.nexus-staging-maven-plugin}</version>
                         <extensions>true</extensions>
                         <configuration>
                             <serverId>ossrh</serverId>
-                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>deploy-to-sonatype</id>
-                                <phase>deploy</phase>
-                                <goals>
-                                    <goal>deploy</goal>
-                                    <goal>release</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-compiler-plugin</artifactId>
-                        <version>3.8.0</version>
-                        <configuration>
-                            <source>${java.version}</source>
-                            <target>${java.version}</target>
-                            <encoding>UTF-8</encoding>
+                            <!-- For pre 2021 legacy projects you may use https://oss.sonatype.org-->
+                            <!-- See https://central.sonatype.org/publish/release/#login-into-ossrh for details -->
+                            <nexusUrl>https://s01.oss.sonatype.org</nexusUrl>
+                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
                         </configuration>
                     </plugin>
                 </plugins>
-            </build>
-            <distributionManagement>
-                <repository>
-                    <id>oss.sonatype.org</id>
-                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-                </repository>
-                <snapshotRepository>
-                    <id>github</id>
-                    <name>GitHub Packages</name>
-                    <url>https://maven.pkg.github.com/codecentric/cxf-spring-boot-starter</url>
-                </snapshotRepository>
-            </distributionManagement>
-        </profile>
+            </pluginManagement>
+            <plugins>
+                <plugin>
+                    <artifactId>maven-gpg-plugin</artifactId>
+                </plugin>
+                <plugin>
+                    <groupId>org.sonatype.plugins</groupId>
+                    <artifactId>nexus-staging-maven-plugin</artifactId>
+                </plugin>
+            </plugins>
+        </build>
+    </profile>
     </profiles>
 
 

@@ -8,37 +8,37 @@ on:
       releaseversion:
         description: 'Release version'
         required: true
-        default: '1.0'
+        default: '1.0.0'
 jobs:
   release: # Arbitrarily chosen
     name: Release # Arbitrarily chosen
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-22.04 # May also run on other kinds of distros
     steps:
-      - run: echo "Will start a Maven Central upload with version ${{ github.event.inputs.releaseversion }}"
-
-      - name: Checkout Code
-        uses: actions/checkout@v2
-
-      - name: Configure GPG Key
-        run: |
-          mkdir -p ~/.gnupg/
-          printf "$MAVEN_GPG_PRIVATE_KEY" | base64 --decode > ~/.gnupg/private.key
-          gpg --batch --import ~/.gnupg/private.key
-        env:
-          MAVEN_GPG_PRIVATE_KEY: ${{ secrets.SONARTYPE_GPG_PRIVATE_KEY }}
-
-      - name: Set up Maven Central Repository
-        uses: actions/setup-java@v3
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Java
+        uses: actions/setup-java@v3 # Does also set up Maven and GPG
         with:
           distribution: 'temurin' # As good as any other, see: https://github.com/actions/setup-java#supported-distributions
           java-package: 'jdk'
           java-version: '17'
+          check-latest: true
+          server-id: 'ossrh' # must match the serverId configured for the nexus-staging-maven-plugin
+          server-username: OSSRH_USERNAME # Env var that holds your OSSRH user name
+          server-password: OSSRH_PASSWORD # Env var that holds your OSSRH user pw
+          gpg-private-key: ${{ secrets.SONARTYPE_GPG_PRIVATE_KEY }} # Substituted with the value stored in the referenced secret
+          gpg-passphrase: SIGN_KEY_PASS # Env var that holds the key's passphrase
           cache: 'maven'
-          server-id: ossrh
-          server-username: ${{ secrets.SONARTYPE_USERNAME }}
-          server-password: ${{ secrets.SONARTYPE_PASSWORD }}
-          gpg-private-key: ${{ secrets.SONARTYPE_GPG_PRIVATE_KEY }}
-          gpg-passphrase: ${{ secrets.SONARTYPE_GPG_PASSPHRASE }}
+      - name: Build & Deploy
+        run: |
+          # -U force updates just to make sure we are using latest dependencies
+          # -B Batch mode (do not ask for user input), just in case
+          # -P activate profile
+          mvn -U -B clean deploy -P release
+        env:
+          SIGN_KEY_PASS: ${{ secrets.SONARTYPE_GPG_PASSPHRASE }}
+          OSSRH_USERNAME: ${{ secrets.SONARTYPE_USERNAME }}
+          OSSRH_PASSWORD: ${{ secrets.SONARTYPE_PASSWORD }}
 
       - name: Set projects Maven version to GitHub Action GUI set version
         run: mvn versions:set "-DnewVersion=${{ github.event.inputs.releaseversion }}"

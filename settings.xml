@@ -5,8 +5,12 @@
     <servers>
         <server>
             <id>ossrh</id>
-            <username>${secrets.SONARTYPE_USERNAME}</username>
-            <password>${secrets.SONARTYPE_PASSWORD}</password>
+            <username>${env.OSSRH_USERNAME}</username>
+            <password>${env.OSSRH_PASSWORD}</password>
+        </server>
+        <server>
+            <id>gpg.passphrase</id>
+            <password>${env.SIGN_KEY_PASS}</password>
         </server>
     </servers>
 </settings>
