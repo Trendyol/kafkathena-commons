@@ -1,0 +1,63 @@
+# This workflow will build a package using Maven and then publish it to GitHub packages when a release is created
+# For more information see: https://github.com/actions/setup-java/blob/main/docs/advanced-usage.md#apache-maven-with-a-settings-path
+name: publish-v2-workflow # You may choose a different name
+run-name: Publish run ${{ github.run_number }} # Enumerates entries in the "workflow runs" view
+on:
+  workflow_dispatch:
+    inputs:
+      releaseversion:
+        description: 'Release version'
+        required: true
+        default: '1.0'
+jobs:
+  release:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+
+      - name: Install Java and Maven
+        uses: actions/setup-java@v1
+        with:
+          java-version: 17
+
+      - name: Release Maven package
+        uses: samuelmeuli/action-maven-publish@v1.4.0
+        with:
+          nexus_username: ${{ secrets.SONARTYPE_USERNAME }}
+          nexus_password: ${{ secrets.SONARTYPE_PASSWORD }}
+          gpg_private_key: ${{ secrets.SONARTYPE_GPG_PRIVATE_KEY }}
+          gpg_passphrase: ${{ secrets.SONARTYPE_GPG_PASSPHRASE }}
+
+      - name: Generate changelog
+        id: changelog
+        uses: metcalfc/changelog-generator@v4.0.1
+        with:
+          myToken: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.event.inputs.releaseversion }}
+          release_name: ${{ github.event.inputs.releaseversion }}
+          body: |
+            Grab the new version from Maven central https://repo1.maven.org/maven2/com/trendyol/mpc/kafkathena-commons/${{ github.event.inputs.releaseversion }}/ by using it in your deps:
+            
+            ```
+            <dependencies>
+              <dependency>
+                  <groupId>com.trendyol.mpc</groupId>
+                  <artifactId>kafkathena-commons</artifactId>
+                  <version>${{ github.event.inputs.releaseversion }}</version>
+              </dependency>
+            </dependencies>
+            ```
+            
+            ### Things that changed in this release
+            ${{ steps.changelog.outputs.changelog }}
+          draft: false
+          prerelease: false
+
