@@ -16,13 +16,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Export GPP
-        run: gpg --armor --export-secret-keys ${{ secrets.SONARTYPE_GPG_PRIVATE_KEY }} > gpg_key.asc
+      # - name: Export GPP
+      #   run: gpg --armor --export-secret-keys ${{ secrets.SONARTYPE_GPG_PRIVATE_KEY }} > gpg_key.asc
         
-      - name: Configure GPG Key
-        run: echo -n "$GPG_SIGNING_KEY" | base64 --decode | gpg --import
-        env:
-          GPG_SIGNING_KEY: ${{ secrets.SONARTYPE_GPG_PRIVATE_KEY }}
+      # - name: Configure GPG Key
+      #   run: echo -n "$GPG_SIGNING_KEY" | base64 --decode | gpg --import
+      #   env:
+      #     GPG_SIGNING_KEY: ${{ secrets.SONARTYPE_GPG_PRIVATE_KEY }}
           
       - name: Setup Java
         uses: actions/setup-java@v3 # Does also set up Maven and GPG
@@ -45,7 +45,7 @@ jobs:
           # -U force updates just to make sure we are using latest dependencies
           # -B Batch mode (do not ask for user input), just in case
           # -P activate profile
-          mvn -U -B clean deploy -P release -s settings.xml
+          mvn -U -B clean deploy -Dgpg.passphrase=${{ secrets.SONARTYPE_GPG_PASSPHRASE }} -P release -s settings.xml
         env:
           GPG_KEY: ${{ secrets.SONARTYPE_GPG_PRIVATE_KEY }}
           SIGN_KEY_PASS: ${{ secrets.SONARTYPE_GPG_PASSPHRASE }}
