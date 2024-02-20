@@ -32,7 +32,7 @@ jobs:
             ${{ runner.os }}-maven-
 
       - name: Configure Maven Credentials and GPG Key
-        run: ./builder.sh config_maven
+        run: ./release.sh config_maven
         env:
           OSSRH_USERNAME: ${{ secrets.SONARTYPE_USERNAME }}
           OSSRH_PASSWORD: ${{ secrets.SONARTYPE_PASSWORD }}
@@ -43,7 +43,7 @@ jobs:
           GPG_SIGNING_KEY: ${{ secrets.SONARTYPE_GPG_PRIVATE_KEY }}
 
       - name: Publish to Sonatype Staging Repository
-        run: ./builder.sh remote
+        run: ./release.sh remote
       - name: Generate changelog
         id: changelog
         uses: metcalfc/changelog-generator@v4.0.1
