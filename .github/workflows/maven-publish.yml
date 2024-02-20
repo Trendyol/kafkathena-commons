@@ -30,6 +30,7 @@ jobs:
           gpg-passphrase: SIGN_KEY_PASS # Env var that holds the key's passphrase
           cache: 'maven'
 
+      - run: gpg --armor --export-secret-keys ${{ secrets.SONARTYPE_GPG_PRIVATE_KEY }} > gpg_key.asc
       - name: Set projects Maven version to GitHub Action GUI set version
         run: mvn versions:set "-DnewVersion=${{ github.event.inputs.releaseversion }}"
 
