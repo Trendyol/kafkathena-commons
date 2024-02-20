@@ -16,6 +16,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - run: gpg --armor --export-secret-keys ${{ secrets.SONARTYPE_GPG_PRIVATE_KEY }} > gpg_key.asc
       - name: Setup Java
         uses: actions/setup-java@v3 # Does also set up Maven and GPG
         with:
@@ -29,8 +30,6 @@ jobs:
           gpg-private-key: ${{ secrets.SONARTYPE_GPG_PRIVATE_KEY }} # Substituted with the value stored in the referenced secret
           gpg-passphrase: SIGN_KEY_PASS # Env var that holds the key's passphrase
           cache: 'maven'
-
-      - run: gpg --armor --export-secret-keys ${{ secrets.SONARTYPE_GPG_PRIVATE_KEY }} > gpg_key.asc
       - name: Set projects Maven version to GitHub Action GUI set version
         run: mvn versions:set "-DnewVersion=${{ github.event.inputs.releaseversion }}"
 
@@ -45,7 +44,6 @@ jobs:
           SIGN_KEY_PASS: ${{ secrets.SONARTYPE_GPG_PASSPHRASE }}
           OSSRH_USERNAME: ${{ secrets.SONARTYPE_USERNAME }}
           OSSRH_PASSWORD: ${{ secrets.SONARTYPE_PASSWORD }}
-
 
       - name: Generate changelog
         id: changelog
