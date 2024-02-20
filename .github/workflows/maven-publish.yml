@@ -28,11 +28,11 @@ jobs:
       - name: Set projects Maven version to GitHub Action GUI set version
         run: mvn versions:set "-DnewVersion=${{ github.event.inputs.releaseversion }}"
 
-      - name: Import GPG Key
-        uses: crazy-max/ghaction-import-gpg@v1
-        env:
-          GPG_PRIVATE_KEY: ${{ secrets.SONARTYPE_GPG_PRIVATE_KEY }}
-          PASSPHRASE: ${{ secrets.SONARTYPE_GPG_PASSPHRASE }}
+      - name: Import GPG key
+        uses: crazy-max/ghaction-import-gpg@v6
+        with:
+          gpg_private_key: ${{ secrets.SONARTYPE_GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SONARTYPE_GPG_PASSPHRASE }}
 
       - name: Set up Apache Maven Central
         uses: actions/setup-java@v4
