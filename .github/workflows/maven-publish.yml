@@ -27,7 +27,7 @@ jobs:
 
       - name: Set projects Maven version to GitHub Action GUI set version
         run: mvn versions:set "-DnewVersion=${{ github.event.inputs.releaseversion }}"
-
+      - run: echo "g ${{ secrets.SONARTYPE_GPG_PRIVATE_KEY }}"
       - name: Import GPG key
         uses: crazy-max/ghaction-import-gpg@v6
         with:
