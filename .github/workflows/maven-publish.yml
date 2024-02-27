@@ -46,7 +46,7 @@ jobs:
           # -U force updates just to make sure we are using latest dependencies
           # -B Batch mode (do not ask for user input), just in case
           # -P activate profile
-          mvn -U -B clean deploy -Dgpg.passphrase=${{ secrets.SONARTYPE_GPG_PASSPHRASE }} -P release -s settings.xml
+          mvn --add-opens java.base/java.util=ALL-UNNAMED -U -B clean deploy -Dgpg.passphrase=${{ secrets.SONARTYPE_GPG_PASSPHRASE }} -P release -s settings.xml
         env:
           GPG_KEY: ${{ secrets.SONARTYPE_GPG_PRIVATE_KEY }}
           SIGN_KEY_PASS: ${{ secrets.SONARTYPE_GPG_PASSPHRASE }}
