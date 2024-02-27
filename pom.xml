@@ -216,6 +216,7 @@
                                 mvn --add-opens java.base/java.util=ALL-UNNAMED
                             </argLine>
                             <trimStackTrace>false</trimStackTrace>
+                            <useSystemClassLoader>false</useSystemClassLoader>
                         </configuration>
                     </plugin>
                     <plugin>
