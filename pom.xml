@@ -310,7 +310,7 @@
                 <repository>
                     <id>ossrh</id>
                     <name>Nexus Staging Repo</name>
-                    <url>http://localhost:8081/nexus/service/local/staging/deploy/maven2/</url>
+                    <url>https://oss.sonatype.org/nexus/service/local/staging/deploy/maven2/</url>
                 </repository>
             </distributionManagement>
         </profile>
