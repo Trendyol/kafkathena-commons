@@ -53,12 +53,6 @@ jobs:
           OSSRH_USERNAME: ${{ secrets.SONARTYPE_USERNAME }}
           OSSRH_PASSWORD: ${{ secrets.SONARTYPE_PASSWORD }}
 
-      - name: Generate changelog
-        id: changelog
-        uses: metcalfc/changelog-generator@v4.0.1
-        with:
-          myToken: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Create GitHub Release
         id: create_release
         uses: actions/create-release@v1
@@ -85,3 +79,8 @@ jobs:
           draft: false
           prerelease: false
 
+      - name: Generate changelog
+        id: changelog
+        uses: metcalfc/changelog-generator@v4.0.1
+        with:
+          myToken: ${{ secrets.GITHUB_TOKEN }}
