@@ -124,7 +124,13 @@ public class KSKafkaManager implements KSMapSupport, KSJsonSupport, ExceptionSup
 
     public Map<String, Object> applyClusterProps(KSConsumer consumer, Map<String, Object> mergedProps, Map<String, KSCluster> clusters) {
         KSCluster cluster = clusters.getOrDefault(consumer.getCluster(), null);
-        if (Objects.nonNull(cluster)) {
+        applyClusterProperties(cluster, mergedProps, consumer);
+        log.debug("Kafkathena: Applied cluster props. {}", mergedProps);
+        return mergedProps;
+    }
+
+    private void applyClusterProperties(KSCluster cluster, Map<String, Object> mergedProps, KSConsumer consumer) {
+        if (cluster != null) {
             String bootstrapServers = cluster.getServers();
             Map<String, Object> additionalProps = cluster.getAdditionalProps();
             mergedProps.put("bootstrap.servers", bootstrapServers);
@@ -132,10 +138,8 @@ public class KSKafkaManager implements KSMapSupport, KSJsonSupport, ExceptionSup
                 mergedProps.putAll(additionalProps);
             }
         } else {
-            throw new KSException(String.format("Consumer %s is not configured with cluster", consumer.getName()));
+            throw new KSException(String.format("Consumer %s is not configured with a cluster", consumer.getName()));
         }
-        log.debug("Kafkathena: Applied cluster props. {}", mergedProps);
-        return mergedProps;
     }
 
 }
