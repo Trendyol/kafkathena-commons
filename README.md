@@ -1,3 +1,5 @@
+
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/Trendyol/kafkathena-commons/badge)](https://scorecard.dev/viewer/?uri=github.com/Trendyol/kafkathena-commons)
 <div id="top"></div>
 <p align="center">
 <img src="docs/images/kafkathena_logo.png" width="250" alt="Kafkathena"/>
